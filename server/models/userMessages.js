@@ -10,11 +10,14 @@ const messageSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
-  content: {
+  messages: {
     type: String,
     required: true,
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now,
   },
 });
 
 module.exports = mongoose.model("userMessages", messageSchema);
-

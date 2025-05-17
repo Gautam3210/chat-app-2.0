@@ -16,29 +16,29 @@ function initializeSocket(server) {
   io.on("connection", (socket) => {
     console.log("A user connected");
 
-    socket.on('register', (userId)=>{
-      console.log(userId)
-      console.log('user register')
-      userMap.set(userId, socket.id)
-    })
+    socket.on("register", (userId) => {
+      console.log("user register");
+      userMap.set(userId, socket.id);
+    });
 
-    socket.on("user-message", ({ senderId, receiverId, content }) => {
-
-      const message = new userMessages({
-        senderId,
-        receiverId,
-        content,
+    socket.on("user-message", ({ userId, toUserId, message }) => {
+   
+      const textMessage = new userMessages({
+        senderId: userId,
+        receiverId: toUserId,
+        messages: message,
       });
-      // message.save();
-      const targetSocketId = userMap.get(receiverId);
-      console.log(targetSocketId)
+      textMessage.save();
+
+      
+      const targetSocketId = userMap.get(toUserId);
       if (targetSocketId) {
         io.to(targetSocketId).emit("user-message", {
-          senderId,
-          content,
+          userId,
+          message,
         });
       }
-    });
+    }); 
 
     socket.on("disconnect", () => {
       console.log("User disconnected");

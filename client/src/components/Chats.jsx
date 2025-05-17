@@ -4,7 +4,6 @@ import TextArea from "./TextArea";
 import Users from "./Users";
 
 function Chats() {
-
   return (
     <div className="container mt-4">
       <div className="row">
@@ -12,8 +11,9 @@ function Chats() {
         <Users></Users>
 
         {/* Center Column: Message Input */}
-        <div className="col-md-9 d-flex flex-column justify-content-center align-items-center">
-          <TextArea></TextArea>
+       
+          <div className="textContainer">
+            <TextArea></TextArea>
         </div>
       </div>
     </div>
