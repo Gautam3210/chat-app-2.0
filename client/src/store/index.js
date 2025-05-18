@@ -21,13 +21,26 @@ const receiverSlice = createSlice({
   },
 });
 
+const fetchSlice = createSlice({
+  name: "fetchMessage",
+  initialState: [],
+  reducers: {
+    fetchMessage: (store, action) => {
+      console.log(action.payload)
+      return action.payload;
+    },
+  },
+});
+
 const userStore = configureStore({
   reducer: {
     user: userSlice.reducer,
     receiver: receiverSlice.reducer,
+    fetchMessage: fetchSlice.reducer,
   },
 });
 
+export const fetchAction = fetchSlice.actions;
 export const receiverAction = receiverSlice.actions;
 export const userAction = userSlice.actions;
 export default userStore;

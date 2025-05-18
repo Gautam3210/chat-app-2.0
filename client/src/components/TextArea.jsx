@@ -1,14 +1,36 @@
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import axios from "axios";
+import { fetchAction } from "../store";
 
+const socket = io("http://localhost:5000");
 function TextArea() {
-  const socket = io("http://localhost:5000");
-
+  const [messageList, setMessageList] = useState([]);
   const user = useSelector((store) => store.user);
   const receiver = useSelector((store) => store.receiver);
   const userMessage = useRef();
+
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "auto" });
+  }, [messageList]); // 👈 runs when messages change
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!user?.userData?._id || !receiver?._id) return;
+
+      const res = await axios.post("http://localhost:5000/chats", {
+        currentUser: user.userData._id,
+        currentReceiver: receiver._id,
+      });
+      const data = res.data;
+      setMessageList(data);
+    };
+
+    fetchMessages();
+  }, [receiver]);
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -19,40 +41,51 @@ function TextArea() {
     socket.on("user-message", ({ userId, message }) => {
       console.log("from: ", userId);
       console.log("message: ", message);
+
+      setMessageList((prev) => [
+        ...prev,
+        { senderId: userId, receiverId: user.userData._id, messages: message },
+      ]);
     });
-  }, [userMessage]);
+    return () => socket.off("user-message"); // cleanup
+  }, []);
 
   const handleSubmitButton = (e) => {
     e.preventDefault();
-
+    const currMessage = userMessage.current.value;
     socket.emit("user-message", {
       userId: user.userData._id,
       toUserId: receiver._id,
       message: userMessage.current.value,
     });
+    setMessageList((prev) => [
+      ...prev,
+      {
+        senderId: user.userData._id,
+        receiverId: receiver._id,
+        messages: currMessage,
+      },
+    ]);
     userMessage.current.value = "";
   };
-
-  if (Object.keys(receiver).length !== 0) {
-    const usersList = async () => {
-      console.log("first run ", receiver);
-      let usersMessages = await axios.post("http://localhost:5000/chats", {
-        currentUser: user.userData._id,
-        currentReceiver: receiver._id,
-      });
-      console.log(usersMessages.data);
-    };
-    usersList()
-  }
 
   return (
     <>
       <h4 className="headContainer">{receiver.name}</h4>
       <div className="messageArea">
-        <li>hello</li>
-        <li>hello</li>
-        <li>hello</li>
-        <li>hello</li>
+        <div className="chat-box">
+          {messageList.map((msg, idx) => (
+            <div
+              key={idx}
+              className={`message ${
+                msg.senderId === user.userData._id ? "sent" : "received"
+              }`}
+            >
+              {msg.messages}
+            </div>
+          ))}
+        </div>
+        <div ref={scrollRef}></div>
       </div>
       <div className="chatContainer">
         <form

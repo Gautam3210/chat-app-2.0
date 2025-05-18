@@ -55,24 +55,3 @@ function getIO() {
 
 module.exports = { initializeSocket, getIO };
 
-// const users = new Map();
-
-// io.on("connection", (socket) => {
-//   console.log("a user connected");
-
-//   socket.on("register", (userId) => {
-//     users.set(userId, socket.id); // Save the mapping
-//     console.log(`User ${userId} registered with socket ID ${socket.id}
-//   });
-
-//   socket.on("userMessage", ({ toUserId, message }) => {
-//     const targetSocketId = users.get(toUserId);
-//     console.log(targetSocketId)
-//     console.log(users)
-//     if (targetSocketId) {
-//       io.to(targetSocketId).emit("userMessage", {
-//         from: socket.id,
-//         message,
-//       });
-//     }
-//   });
