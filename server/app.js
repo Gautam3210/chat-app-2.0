@@ -3,7 +3,8 @@ const http = require("http");
 const cors = require("cors");
 const { signRoute } = require("./routes/signRoute");
 const { initializeSocket } = require("./service/socket");
-const userMessages = require('./models/userMessages')
+const userMessages = require("./models/userMessages");
+const jwt = require('jsonwebtoken')
 
 const app = express();
 const server = http.createServer(app);
@@ -17,22 +18,35 @@ app.use(
   })
 );
 
-initializeSocket(server)
+initializeSocket(server);
+
+const authMiddleware = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, "gatuam@malviya", (err, user) => {
+    if (err) return res.sendStatus(403);
+    next();
+  });
+};
 
 app.use("/", signRoute);
 
-app.post('/chats', async(req,res)=>{
-  const {currentUser, currentReceiver} = req.body;
-  const messages = await userMessages.find({
-    $or: [
-      { senderId: currentUser, receiverId: currentReceiver },
-      { senderId: currentReceiver, receiverId: currentUser }
-    ]
-  }).sort({ timestamp: 1 }); // Oldest to newest
+app.post("/chats", authMiddleware, async (req, res) => {
+  const { currentUser, currentReceiver } = req.body;
+  const messages = await userMessages
+    .find({
+      $or: [
+        { senderId: currentUser, receiverId: currentReceiver },
+        { senderId: currentReceiver, receiverId: currentUser },
+      ],
+    })
+    .sort({ timestamp: 1 }); // Oldest to newest
 
-  res.json(messages)
-})
- 
+  res.json(messages);
+});
 
 server.listen(5000, () => {
   console.log("server running at port 5000");

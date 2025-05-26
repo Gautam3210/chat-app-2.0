@@ -20,10 +20,15 @@ function TextArea() {
   useEffect(() => {
     const fetchMessages = async () => {
       if (!user?.userData?._id || !receiver?._id) return;
+      const token = localStorage.getItem('token')
 
       const res = await axios.post("http://localhost:5000/chats", {
         currentUser: user.userData._id,
         currentReceiver: receiver._id,
+      },{
+        headers:{
+          "Authorization": `Bearer ${token}`
+        }
       });
       const data = res.data;
       setMessageList(data);

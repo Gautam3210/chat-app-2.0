@@ -22,7 +22,7 @@ function Login() {
       email: email,
       password: password,
     });
-   
+    localStorage.setItem("token", res.data.token);
     dispatch(userAction.addUser(res.data));
 
     userEmail.current.value = "";
