@@ -4,7 +4,8 @@ const cors = require("cors");
 const { signRoute } = require("./routes/signRoute");
 const { initializeSocket } = require("./service/socket");
 const userMessages = require("./models/userMessages");
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const { verifyToken } = require("./service/token");
 
 const app = express();
 const server = http.createServer(app);
@@ -26,10 +27,8 @@ const authMiddleware = (req, res, next) => {
 
   if (!token) return res.sendStatus(401);
 
-  jwt.verify(token, "gatuam@malviya", (err, user) => {
-    if (err) return res.sendStatus(403);
-    next();
-  });
+  verifyToken(token)
+  next();
 };
 
 app.use("/", signRoute);

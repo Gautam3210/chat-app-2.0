@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import axios from "axios";
-import { fetchAction } from "../store";
 
 const socket = io("http://localhost:5000");
 function TextArea() {
@@ -15,7 +14,7 @@ function TextArea() {
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "auto" });
-  }, [messageList]); // 👈 runs when messages change
+  }, [messageList]); 
 
   useEffect(() => {
     const fetchMessages = async () => {

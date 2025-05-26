@@ -1,6 +1,6 @@
 const userInfoSchema = require("../models/userInfo");
 const jwt = require("jsonwebtoken");
-const jwtSecretKey = "gatuam@malviya";
+const { generateToken } = require("../service/token");
 
 const userSignUp = async (req, res) => {
   const { name, email, password } = req.body;
@@ -26,9 +26,7 @@ const userLogin = async (req, res) => {
       email: userData.email,
     };
 
-    const token = jwt.sign(data, jwtSecretKey);
-
-
+    const token = generateToken(data)
     res.json({ userData, usersData, token });
 
   }
